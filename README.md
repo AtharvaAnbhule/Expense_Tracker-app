@@ -1,257 +1,220 @@
-# 📊 Expense Tracker – Full Stack (React Native + Spring Boot + Kafka + AWS)
+# 🧾 Expense Tracker Platform – Microservices + Cloud + DevOps
 
-A production-grade **Expense Tracking Application** built with a modern cloud-native architecture.  
-It supports **real-time expense syncing**, **category-wise analytics**, **secure authentication**, and **scalable microservices** deployed using **Docker, Kubernetes, and AWS**.
+A production-ready **Expense Tracker Platform** built using a modular microservices architecture with **Spring Boot**, **React Native**, **Kafka**, **Kong API Gateway**, **MySQL**, **Docker**, **Kubernetes**, **CloudFormation**, and **AWS CDK**.
 
----
-
-## 🚀 Tech Stack
-
-### **Frontend**
-- React Native (Expo / CLI)
-- Context API / Redux Toolkit
-- Axios + React Query
-
-### **Backend**
-- Spring Boot (REST API)
-- Spring Security + JWT
-- MySQL
-- Kafka (Event streaming)
-
-### **DevOps & Cloud**
-- Docker
-- Kubernetes
-- AWS CDK (IaC)
-- AWS: EKS, RDS, S3, CloudWatch, IAM, ALB
+This project showcases **enterprise-level engineering**, including authentication, expense management, analytics, event streaming, API gateway routing, IaC, CI/CD, and containerized deployments.
 
 ---
 
-## 📱 Features
+# 📂 Project Structure
 
-### User Features
-- Add/edit/delete expenses
-- Category-wise filters
-- Monthly analytics dashboard
-- Real-time sync via Kafka
-- JWT Authentication
-- Multi-device syncing
-- Offline support
-
-### Backend Features
-- Kafka producers/consumers
-- Analytics microservice
-- MySQL relational database
-- Cloud-native deployment
+```
+root/
+ ├── AWS CDK/                     # CDK IaC to deploy resources on AWS
+ ├── AuthService/                 # Authentication Microservice (JWT + Spring Security)
+ ├── Data Science Service/        # ML/Analytics service (Python)
+ ├── ExpenseService/              # Expense CRUD Microservice
+ ├── UserService/                 # User profile microservice
+ ├── kafka/                       # Kafka setup + topics + brokers
+ ├── kong/                        # API Gateway configs (routes, services)
+ ├── mysql/                       # MySQL schema + initialization
+ ├── test/                        # Testing utilities
+ ├── cloudformation-template--initial-infra.yaml
+ ├── cloudformation-template-deps.yaml
+ ├── mysql-kafka.yml              # Docker compose for MySQL + Kafka
+ ├── services.yml                 # Kubernetes service deployments
+ └── README.md                    # Project Documentation
+```
 
 ---
 
-## 🏗️ Architecture Overview
+# 🏛 Architecture Overview
 
 ```
 React Native App
         |
-   API Gateway
+   ┌──────────────┐
+   |   Kong API    |
+   |    Gateway    |
+   └──────────────┘
         |
- ------------------------
-| Spring Boot Services   |
-|  - Auth Service        |
-|  - Expense Service     |
-|  - Analytics Consumer  |
- ------------------------
+ --------------------------------------------------
+| AuthService      |  UserService   | ExpenseService |
+ --------------------------------------------------
         |
-   Kafka Cluster
+      Kafka  <----->  Data Science Service (ML)
         |
-  MySQL (RDS)
+      MySQL (DB)
         |
-    AWS Cloud
+       AWS Cloud (CDK / CloudFormation)
 ```
 
 ---
 
+# 🚀 Tech Stack
+
+### **Frontend**
+- React Native  
+- Axios API client  
+
+### **Backend Microservices**
+- Spring Boot  
+- Spring Security (JWT)  
+- MySQL  
+- Kafka Producers/Consumers  
+- Python for ML analytics  
+
+### **DevOps & Cloud**
+- Docker  
+- Docker Compose  
+- Kubernetes (services.yml)  
+- Kafka + Zookeeper  
+- Kong Gateway  
+- AWS CDK (IaC)  
+- AWS CloudFormation  
+- AWS ECS / EKS / RDS / S3  
 
 ---
 
-## 🧰 Local Development Setup
+# 🧩 Microservices Overview
 
-### 1. Clone the repository
+### **1. AuthService**
+- Login / Signup  
+- JWT Token generation  
+- Role-based access  
+- Secure routes  
 
-```bash
-git clone https://github.com/your-username/expense-tracker.git
-cd expense-tracker
-```
+### **2. UserService**
+- Handles user profiles  
+- Preferences  
+- Linked devices  
+- Fetch user by ID  
 
----
+### **3. ExpenseService**
+- Add / Update / Delete expense  
+- Categories & filtering  
+- Emits Kafka events:  
+  - `expense-created`  
+  - `expense-updated`  
+  - `expense-deleted`  
 
-# 🖥️ Backend Setup (Spring Boot)
-
-### 2. Create MySQL Database
-
-```sql
-CREATE DATABASE expense_tracker;
-```
-
-Update `application.yml`:
-
-```yaml
-spring:
-  datasource:
-    url: jdbc:mysql://localhost:3306/expense_tracker
-    username: root
-    password: yourpassword
-```
+### **4. Data Science Service (Python)**
+- Consumes Kafka events  
+- Generates monthly analytics  
+- ML-based predictions (future scope)  
 
 ---
 
-### 3. Start Kafka Using Docker
+# 🐳 Docker & Kafka Setup
+
+Start Kafka + MySQL:
 
 ```bash
-docker-compose -f docker/kafka.yml up -d
+docker-compose -f mysql-kafka.yml up -d
 ```
 
----
-
-### 4. Run Backend Services
+Build microservices:
 
 ```bash
-./mvnw spring-boot:run
-```
-
----
-
-# 📱 Frontend Setup (React Native)
-
-### 5. Install dependencies
-
-```bash
-cd frontend
-npm install
-```
-
-### 6. Start Expo
-
-```bash
-npx expo start
-```
-
----
-
-# 🐳 Docker Setup
-
-Build Docker images:
-
-```bash
-docker build -t expense-auth backend/auth-service
-docker build -t expense-expense backend/expense-service
-docker build -t expense-analytics backend/analytics-service
-docker build -t expense-analytics backend/user-service
-docker build -t expense-analytics backend/data-science-service
-```
-
-Run everything:
-
-```bash
-docker compose up -d
+docker build -t auth-service ./AuthService
+docker build -t user-service ./UserService
+docker build -t expense-service ./ExpenseService
+docker build -t analytics-service ./Data Science Service
 ```
 
 ---
 
 # ☸️ Kubernetes Deployment
 
-Apply manifests:
+Deploy services:
 
 ```bash
-kubectl apply -f kubernetes/
+kubectl apply -f services.yml
 ```
 
-Check pods:
+Verify deployment:
 
 ```bash
 kubectl get pods
+kubectl get svc
 ```
 
 ---
 
-# ☁️ AWS CDK Deployment
+# 🌐 Kong API Gateway
 
-### Bootstrap CDK
+Folder: `/kong`
+
+Contains configs for:
+- Routes
+- Services
+- Rate-limiting (optional)
+- Route forwarding to microservices
+
+Apply config:
 
 ```bash
-cd infra/cdk
-cdk bootstrap
+deck sync
 ```
 
-### Deploy Infrastructure
+---
+
+# 🛠 AWS Deployment (CDK)
+
+Navigate to CDK folder:
 
 ```bash
+cd "AWS CDK"
+cdk bootstrap
 cdk deploy
 ```
 
-This deploys:  
-✔ VPC  
-✔ EKS Cluster  
-✔ RDS MySQL  
-✔ S3 buckets  
-✔ IAM roles  
-✔ Application Load Balancer  
+CDK Deploys:
+- VPC  
+- RDS MySQL  
+- ECS/EKS cluster  
+- Security groups  
+- S3 buckets  
+- CloudWatch logs  
 
 ---
 
-# 🔐 Environment Variables
+# 🗄 Environment Variables
 
-### Backend `.env`
+### Common
 
 ```
-JWT_SECRET=your-secret-key
+MYSQL_HOST=localhost
 MYSQL_USER=root
-MYSQL_PASSWORD=password
+MYSQL_PASSWORD=yourpassword
 KAFKA_BOOTSTRAP_SERVERS=localhost:9092
+JWT_SECRET=your_secret
 ```
-
-### Frontend `.env`
-
-```
-API_URL=https://your-api-url.com
-```
-
----
-
-# 📊 Kafka Topics
-
-| Topic Name          | Purpose                           |
-|---------------------|-----------------------------------|
-| expense-created     | New expense added                  |
-| expense-updated     | Expense updated                    |
-| expense-deleted     | Expense deleted                    |
-| analytics-update    | Analytics consumer processing      |
 
 ---
 
 # 🧪 Testing
 
-### JUnit + Jest Tests
+Run Java tests:
 
 ```bash
 ./mvnw test
-npm test
+```
+
+Run Python tests:
+
+```bash
+pytest
 ```
 
 ---
 
-# 🛡 Security
-
-- JWT auth  
-- BCrypt password hashing  
-- AWS IAM roles  
-- Private RDS & Kafka  
-
----
-
 # 📈 Future Enhancements
-- AI-based spending predictions  
-- Budget alerts  
-- OCR bill scanning  
-- Multi-currency support  
-- Web dashboard  
 
+- AI insights on spending  
+- Anomaly detection  
+- OCR for scanning receipts  
+- Multi-currency support  
+- Push notifications  
 
 
